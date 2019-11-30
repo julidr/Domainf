@@ -9,11 +9,16 @@ import (
 )
 
 // GetConnection returns the connection CockroachDB logic based on the given information
-func GetConnection(user string, host string, port string, sslMode bool) *sql.DB {
-	dataSourceName := fmt.Sprintf("postgresql://%v@%v:%v?sslmode=%v", user, host, port, sslMode)
+func GetConnection(user string, host string, port string, database string, sslMode string) *sql.DB {
+	dataSourceName := fmt.Sprintf("postgresql://%v@%v:%v/%v?sslmode=%v", user, host, port, database, sslMode)
 	connection, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error connection to the database: ", err)
 	}
 	return connection
+}
+
+// CloseConnection handle the closure of any given connection
+func CloseConnection(db *sql.DB) {
+	db.Close()
 }
