@@ -18,6 +18,11 @@ func (domain Domain) Id() string {
 	return domain.id
 }
 
+// Set the if of a Domain
+func (domain *Domain) SetId(id string) {
+	domain.id = id
+}
+
 // Return the host value of a domain
 func (domain Domain) Host() string {
 	return domain.host
@@ -68,18 +73,3 @@ func (domain *Domain) SetUpdatedAt(updatedAt time.Time) {
 	domain.updatedAt = updatedAt
 }
 
-// Transform a Go slice to the specific format ARRAY format of the DB
-func (domain Domain) FormatServersToDBArray() string {
-	formatArray := "ARRAY["
-	servers := domain.Servers()
-	serversCount := len(servers)
-	for i := 0; i < serversCount; i++ {
-		if i != len(servers)-1 {
-			formatArray += "'" + servers[i] + "',"
-		} else {
-			formatArray += "'" + servers[i] + "'"
-		}
-	}
-	formatArray += "]"
-	return formatArray
-}

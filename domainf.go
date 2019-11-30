@@ -17,6 +17,8 @@ func main() {
 	myDomain.SetSslGrade("A")
 	myDomain.SetCreatedAt(time.Now())
 	myDomain.SetUpdatedAt(time.Now())
-	logic.CreateDomain(connection, myDomain)
-
+	//logic.CreateDomain(connection, myDomain)
+	domain := logic.GetDomainByHost(connection, "google.com")
+	fmt.Println(domain)
+	fmt.Println(domain.CreatedAt().Format("2006-01-02 15:04:05"))
 }
