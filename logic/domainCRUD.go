@@ -19,7 +19,17 @@ func CreateDomain(db *sql.DB, domain models.Domain) {
 		"VALUES ('%v', %v, '%v', '%v', '%v');", domain.Host(), formatArray, domain.SslGrade(),
 		domain.CreatedAt().Format(datetimeLayout), domain.UpdatedAt().Format(datetimeLayout))
 	if _, err := db.Exec(query); err != nil {
-		log.Fatal("Something failed with the creation of the Domain: ", err)
+		log.Fatal("Something failed with the creation of the domain: ", err)
+	}
+}
+
+// Update the servers, ssl grade and update date of a domain with its currently values
+func UpdateDomain(db *sql.DB, domain models.Domain) {
+	formatArray := utils.FormatServersToDBArray(domain.Servers())
+	query := fmt.Sprintf("UPDATE domain SET (servers, ssl_grade, updated_at) = (%v, '%v', '%v') " +
+		"WHERE host = '%v';", formatArray, domain.SslGrade(), domain.UpdatedAt().Format(datetimeLayout), domain.Host())
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal("Something failed with the update of the domain:", err)
 	}
 }
 
