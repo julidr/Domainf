@@ -1,4 +1,3 @@
-// Contain struct representations of the different database tables
 package models
 
 import "time"

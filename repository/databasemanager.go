@@ -1,5 +1,5 @@
 // Contains all necessary functions to connect with the CockroachDB
-package logic
+package repository
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-// GetConnection returns the connection CockroachDB logic based on the given information
+// GetConnection returns the connection CockroachDB repository based on the given information
 func GetConnection(user string, host string, port string, database string, sslMode string) *sql.DB {
 	dataSourceName := fmt.Sprintf("postgresql://%v@%v:%v/%v?sslmode=%v", user, host, port, database, sslMode)
 	connection, err := sql.Open("postgres", dataSourceName)
