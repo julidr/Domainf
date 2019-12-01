@@ -18,7 +18,7 @@ var connection = repository.GetConnection("root", "Juli", "26257", "domainf", "d
 
 // Handle all the logic to retrieve the information of the specified domain.
 // Create or update the domain info in the database, build the response information
-func GetServerInformation(host string) {
+func GetServerInformation(host string) []byte {
 	var servers []string
 	result := &models.Information{}
 	analyze := callAnalyzeEndpoint(host)
@@ -60,7 +60,18 @@ func GetServerInformation(host string) {
 	if err != nil {
 		log.Fatal("Something failed with the response: ", err)
 	}
-	fmt.Println(string(response))
+	return response
+}
+
+// Call the database to retrieve the history of domains
+func GetServersHistory() []byte {
+	domainsHistory := repository.GetDomainsHistory(connection)
+	history := models.History{domainsHistory}
+	response, err := json.Marshal(history)
+	if err != nil {
+		log.Fatal("Something failed with the response: ", err)
+	}
+	return response
 }
 
 // Make a GET request to the SSL Labs API and retrieve the analyzed information for a host.
@@ -84,7 +95,7 @@ func getOwnerAndCountry(ip string) [2]string {
 	var information [2]string
 	whoIsResult, err := whois.Whois(ip, "whois.arin.net")
 	if err != nil {
-		log.Fatal("Something failed while getting whois information: ", err)
+		log.Println("Something failed while getting whois information: ", err)
 	}
 	lines := strings.Split(whoIsResult, "\n")
 	for i := 0; i < len(lines); i++ {
@@ -180,33 +191,45 @@ func getLogoAndTitle(host string, protocol string) [2]string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "link" {
-			for i:= 0; i < len(n.Attr); i++ {
-				if strings.Contains(n.Attr[i].Val, "shortcut icon") {
-					for j := 0; j < len(n.Attr); j++ {
-						if n.Attr[j].Key == "href" {
-							logo = n.Attr[j].Val
-							break
-						}
-					}
-					break
-				}
-			}
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
-	}
-	f(headDoc)
-	titleStartIndex := strings.Index(headContent, "<title>")
-	titleEndIndex := strings.Index(headContent, "</title>")
-	if titleStartIndex != -1 || titleEndIndex != -1 {
-		titleStartIndex += 7
-		title = headContent[titleStartIndex:titleEndIndex]
-	}
+	logo = searchIcon(headDoc)
+	title = searchTitle(headDoc)
 	headInformation[0] = logo
 	headInformation[1] = title
 	return headInformation
+}
+
+func searchIcon(n *html.Node) string {
+	var logo string
+	if n.Type == html.ElementNode && n.Data == "link" {
+		for i:= 0; i < len(n.Attr); i++ {
+			if strings.Contains(n.Attr[i].Val, "shortcut icon") {
+				for j := 0; j < len(n.Attr); j++ {
+					if n.Attr[j].Key == "href" {
+						return n.Attr[j].Val
+					}
+				}
+			}
+		}
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		logo = searchIcon(c)
+		if logo != "" {
+			return logo
+		}
+	}
+	return logo
+}
+
+func searchTitle (n *html.Node) string {
+	var title string
+	if n.Type == html.ElementNode && n.Data == "title" {
+		return n.FirstChild.Data
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		title = searchTitle(c)
+		if title != "" {
+			return title
+		}
+	}
+	return title
 }

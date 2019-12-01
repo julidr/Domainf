@@ -37,7 +37,7 @@ func UpdateDomain(db *sql.DB, domain models.Domain) {
 func GetDomainByHost(db *sql.DB, host string) models.Domain {
 	domain := models.Domain{}
 	query := fmt.Sprintf("SELECT * FROM domain WHERE host = '%v';", host)
-	rows, err := db.Query(query);
+	rows, err := db.Query(query)
 	if err != nil {
 		log.Fatal("Something failed while searching for " + host + ": ", err)
 	}
@@ -63,4 +63,23 @@ func GetDomainByHost(db *sql.DB, host string) models.Domain {
 		domain.SetUpdatedAt(parseUpdatedAt)
 	}
 	return domain
+}
+
+// Return a list with all the domains that have been searched
+func GetDomainsHistory (db *sql.DB) []string {
+	var hostsHistory []string
+	query := "SELECT host FROM domain;"
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal("Something failed with the history of domains: ", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var host string
+		if err := rows.Scan(&host); err != nil {
+			log.Fatal("Something failed with the Scan: ", err)
+		}
+		hostsHistory = append(hostsHistory, host)
+	}
+	return hostsHistory
 }

@@ -79,3 +79,13 @@ func (server *Server) SetCountry(country string) {
 func (server *Server) SetOwner(owner string) {
 	server.Owner = owner
 }
+
+// Represent the JSON response of the domains history call
+type History struct {
+	Items []string  `json:"items"`
+}
+
+// Set the Items value
+func (history *History) SetItem(items []string) {
+	history.Items = items
+}
