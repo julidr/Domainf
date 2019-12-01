@@ -27,5 +27,5 @@ func main() {
 	//endpoints := []models.Endpoint{{"1", "A+"},{"1", "A"},{"1", "A"}}
 	//lowest := logic.CalculateLowerSslGrade(endpoints)
 	//fmt.Println(lowest)
-	logic.GetServerInformation("truora.com")
+	logic.GetServerInformation("stackoverflow.com")
 }

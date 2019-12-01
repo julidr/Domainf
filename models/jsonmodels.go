@@ -3,6 +3,7 @@ package models
 // Represent the JSON response of the Analyze endpoint into a struct to easy manipulation
 type Analyze struct {
 	Host string `json:"host"`
+	Protocol string `json:"protocol"`
 	Endpoints []Endpoint `json:"endpoints"`
 }
 
@@ -40,6 +41,16 @@ func (information *Information) SetPreviousSslGrade(previousSslGrade string) {
 // Set the value of IsDown if the endpoint do not return the necessary information
 func (information *Information) SetIsDown(isDown bool) {
 	information.IsDown = isDown
+}
+
+// Set the value of the Logo
+func (information *Information) SetLogo(logo string) {
+	information.Logo = logo
+}
+
+// Set the value of the Title
+func (information *Information) SetTitle(title string) {
+	information.Title = title
 }
 
 // Represent the servers of the JSON response that have the requested information of a certain domain

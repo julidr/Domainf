@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/likexian/whois-go"
+	"golang.org/x/net/html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -38,6 +39,9 @@ func GetServerInformation(host string) {
 	}
 	lowerGrade := calculateLowerSslGrade(analyze.Endpoints)
 	result.SetSslGrade(lowerGrade)
+	headInformation := getLogoAndTitle(analyze.Host, analyze.Protocol)
+	result.SetLogo(headInformation[0])
+	result.SetTitle(headInformation[1])
 	domain := getDomain(host)
 	if domain.Id() == "" {
 		createDomain(host, lowerGrade, servers)
@@ -154,4 +158,55 @@ func compareServers(requestServers []string, databaseServers[]string) bool {
 		}
 	}
 	return serverChanged
+}
+
+// Call the possible web page of a domain and extract its logo and title from the HTML content
+func getLogoAndTitle(host string, protocol string) [2]string {
+	var logo string
+	var title string
+	var headInformation [2]string
+	url := fmt.Sprintf("%v://%v", protocol, host)
+	response, requestError := http.Get(url)
+	if requestError != nil {
+		log.Fatal("Something failed with the request to the servers info: ", requestError)
+	}
+	defer response.Body.Close()
+	htmlResponse, _ := ioutil.ReadAll(response.Body)
+	pageContent := string(htmlResponse)
+	headStartIndex := strings.Index(pageContent, "<head>")
+	headEndIndex := strings.Index(pageContent, "</head>")
+	headContent := pageContent[headStartIndex:headEndIndex]
+	headDoc, err := html.Parse(strings.NewReader(headContent))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "link" {
+			for i:= 0; i < len(n.Attr); i++ {
+				if strings.Contains(n.Attr[i].Val, "shortcut icon") {
+					for j := 0; j < len(n.Attr); j++ {
+						if n.Attr[j].Key == "href" {
+							logo = n.Attr[j].Val
+							break
+						}
+					}
+					break
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(headDoc)
+	titleStartIndex := strings.Index(headContent, "<title>")
+	titleEndIndex := strings.Index(headContent, "</title>")
+	if titleStartIndex != -1 || titleEndIndex != -1 {
+		titleStartIndex += 7
+		title = headContent[titleStartIndex:titleEndIndex]
+	}
+	headInformation[0] = logo
+	headInformation[1] = title
+	return headInformation
 }
