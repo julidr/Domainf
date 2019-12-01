@@ -33,6 +33,9 @@ func GetServerInformation(host string) {
 		servers = append(servers, analyze.Endpoints[i].IpAddress)
 		result.Servers = append(result.Servers, server)
 	}
+	if len(result.Servers) == 0 {
+		result.SetIsDown(true)
+	}
 	lowerGrade := calculateLowerSslGrade(analyze.Endpoints)
 	result.SetSslGrade(lowerGrade)
 	domain := getDomain(host)
@@ -95,6 +98,7 @@ func getOwnerAndCountry(ip string) [2]string {
 
 // Calculate the lowest ssl grade for a given list of possible grades
 func calculateLowerSslGrade(endpoints []models.Endpoint) string {
+	var grade string
 	sslGrades := [7]string{"F", "E", "D", "C", "B", "A", "A+"}
 	lowerGrade := 10
 	gradesCount := len(sslGrades)
@@ -109,7 +113,10 @@ func calculateLowerSslGrade(endpoints []models.Endpoint) string {
 			}
 		}
 	}
-	return sslGrades[lowerGrade]
+	if lowerGrade >= 0 && lowerGrade <= 6 {
+		grade = sslGrades[lowerGrade]
+	}
+	return grade
 }
 
 // Return the domain for given host in the database

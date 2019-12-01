@@ -37,6 +37,11 @@ func (information *Information) SetPreviousSslGrade(previousSslGrade string) {
 	information.PreviousSslGrade = previousSslGrade
 }
 
+// Set the value of IsDown if the endpoint do not return the necessary information
+func (information *Information) SetIsDown(isDown bool) {
+	information.IsDown = isDown
+}
+
 // Represent the servers of the JSON response that have the requested information of a certain domain
 type Server struct {
 	Address string `json:"address"`
