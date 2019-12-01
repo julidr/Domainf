@@ -24,5 +24,8 @@ func main() {
 	//domain.SetServers([]string{"172.217.6.46", "2607:f8b0:4005:808:0:0:0:200e"})
 	//domain.SetUpdatedAt(time.Now())
 	//repository.UpdateDomain(connection, domain)
+	//endpoints := []models.Endpoint{{"1", "A+"},{"1", "A"},{"1", "A"}}
+	//lowest := logic.CalculateLowerSslGrade(endpoints)
+	//fmt.Println(lowest)
 	logic.GetServerInformation("google.com")
 }
