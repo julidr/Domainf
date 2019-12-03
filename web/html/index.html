@@ -5,69 +5,80 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
 
-    <!-- CSS styles -- >
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- CSS styles -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/domainf.css">
+
 
     <!-- Javascript external libraries -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
+    <!-- Javascript own libraries -->
+    <script type="module" src="../js/domainf.js"></script>
+
     <title>Domainf</title>
+
 </head>
 
 <body>
-    <div id="app">
-        <h1>Domainf</h1>
-        <img v-bind:src="logo"/>
-        <div>{{ sslGrade }}</div>
-        <h2>Servers</h2>
-        <table>
-            <tr>
-                <th>address</th>
-                <th>ssl_grade</th>
-                <th>country</th>
-                <th>owner</th>
-            </tr>
-            <tr v-for="server in servers">
-                <td>{{ server.address }}</td>
-                <td>{{ server.ssl_grade }}</td>
-                <td>{{ server.country }}</td>
-                <td>{{ server.owner }}</td>
-            </tr>
-        </table>
+    <div id="app" class="container h-100">
+        <div class="row align-items-center h-100">
+            <div class="col text-center">
+                <h1>Domainf</h1>
+                <p><code>Domainf</code> is a simple page that get the information of a server and knows if its configuration
+                    has changed</p>
+                <div class="form-inline justify-content-center">
+                    <div class="form-group">
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input class="form-control" v-model="host" placeholder="truora.com">
+                        </div>
+                        <button class="btn btn-primary mb-2" v-on:click="getServers">Search</button>
+                    </div>
+                </div>
+                <button class="btn btn-link">search history</button>
+                <div v-if="!hideServers">
+                    <div v-if="loading" class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div v-else class="card mt-2">
+                        <div class="card-header">
+                            <h4 class="card-title mt-2"><img v-bind:src="logo" class="img-fluid mb-2 icon-img" /> {{ title }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <p><span>SSL Grade:</span> {{ sslGrade }}</p>
+                                <p><span>Previous SSL Grade:</span> {{ previousSslGrade }}</p>
+                            </div>
+                            <h2>Servers</h2>
+                            <table>
+                                <tr>
+                                    <th>address</th>
+                                    <th>ssl_grade</th>
+                                    <th>country</th>
+                                    <th>owner</th>
+                                </tr>
+                                <tr v-for="server in servers">
+                                    <td>{{ server.address }}</td>
+                                    <td>{{ server.ssl_grade }}</td>
+                                    <td>{{ server.country }}</td>
+                                    <td>{{ server.owner }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Bootstrap external libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
 </body>
-
-<!-- Created embebed script here to avoid using a server and other troubles -->
-<script>
-    new Vue({
-        el: '#app',
-        data() {
-            return {
-                servers: null,
-                serversChanged: null,
-                sslGrade: null,
-                previousSslGrade: null,
-                logo: null,
-                title: null,
-                isDown: null
-            }
-        },
-        mounted() {
-            axios
-                .get('http://localhost:8546/servers?host=stackoverflow.com')
-                .then(response => (
-                    this.servers = response.data.servers,
-                    this.serversChanged = response.data.servers_changed,
-                    this.sslGrade = response.data.ssl_grade,
-                    this.previousSslGrade = response.data.previous_ssl_grade,
-                    this.logo = response.data.logo,
-                    this.title = response.data.title,
-                    this.isDown = response.data.is_down
-                ))
-        }
-    })
-
-</script>
 
 </html>
