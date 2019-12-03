@@ -179,7 +179,7 @@ func getLogoAndTitle(host string, protocol string) [2]string {
 	url := fmt.Sprintf("%v://%v", protocol, host)
 	response, requestError := http.Get(url)
 	if requestError != nil {
-		log.Fatal("Something failed with the request to the servers info: ", requestError)
+		log.Println("Something failed with the request to the servers info: ", requestError)
 	}
 	defer response.Body.Close()
 	htmlResponse, _ := ioutil.ReadAll(response.Body)
@@ -189,7 +189,7 @@ func getLogoAndTitle(host string, protocol string) [2]string {
 	headContent := pageContent[headStartIndex:headEndIndex]
 	headDoc, err := html.Parse(strings.NewReader(headContent))
 	if err != nil {
-		log.Fatal(err)
+		log.Println("something failed while parsing the HTML", err)
 	}
 	logo = searchIcon(headDoc)
 	title = searchTitle(headDoc)

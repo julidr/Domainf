@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+
+    <!-- CSS styles -- >
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Javascript external libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <title>Domainf</title>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Domainf</h1>
+        <img v-bind:src="logo"/>
+        <div>{{ sslGrade }}</div>
+        <h2>Servers</h2>
+        <table>
+            <tr>
+                <th>address</th>
+                <th>ssl_grade</th>
+                <th>country</th>
+                <th>owner</th>
+            </tr>
+            <tr v-for="server in servers">
+                <td>{{ server.address }}</td>
+                <td>{{ server.ssl_grade }}</td>
+                <td>{{ server.country }}</td>
+                <td>{{ server.owner }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+<!-- Created embebed script here to avoid using a server and other troubles -->
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                servers: null,
+                serversChanged: null,
+                sslGrade: null,
+                previousSslGrade: null,
+                logo: null,
+                title: null,
+                isDown: null
+            }
+        },
+        mounted() {
+            axios
+                .get('http://localhost:8546/servers?host=stackoverflow.com')
+                .then(response => (
+                    this.servers = response.data.servers,
+                    this.serversChanged = response.data.servers_changed,
+                    this.sslGrade = response.data.ssl_grade,
+                    this.previousSslGrade = response.data.previous_ssl_grade,
+                    this.logo = response.data.logo,
+                    this.title = response.data.title,
+                    this.isDown = response.data.is_down
+                ))
+        }
+    })
+
+</script>
+
+</html>
