@@ -37,7 +37,17 @@
                         <button class="btn btn-primary mb-2" v-on:click="getServers">Search</button>
                     </div>
                 </div>
-                <button class="btn btn-link">search history</button>
+                <button class="btn btn-link" v-on:click="getHistory">search history</button>
+                <div v-if="!hideHistory">
+                    <div v-if="loading2" class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div v-else>
+                        <div v-for="domain in history">
+                            {{ domain }}
+                        </div>
+                    </div>
+                </div>
                 <div v-if="!hideServers">
                     <div v-if="loading" class="spinner-border" role="status">
                         <span class="sr-only">Loading...</span>
@@ -45,27 +55,35 @@
                     <div v-else class="card mt-2">
                         <div class="card-header">
                             <h4 class="card-title mt-2"><img v-bind:src="logo" class="img-fluid mb-2 icon-img" /> {{ title }}</h4>
+                            <div class="row justify-content-center">
+                                <h6 class="mr-5"><span class="badge" v-bind:class="{'badge-success': this.serversChanged, 'badge-danger': !this.serversChanged}">Server Changed</span></h6>
+                                <h6><span class="badge" v-bind:class="{'badge-success': !this.isDown, 'badge-danger': this.isDown}">Server Status</span></h6>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <div>
-                                <p><span>SSL Grade:</span> {{ sslGrade }}</p>
-                                <p><span>Previous SSL Grade:</span> {{ previousSslGrade }}</p>
+                            <div class="row justify-content-center">
+                                <h4>Servers</h4>
+                                <table class="table justify-content-center">
+                                    <thead>
+                                        <tr>
+                                            <th>address</th>
+                                            <th>ssl_grade</th>
+                                            <th>country</th>
+                                            <th>owner</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="server in servers">
+                                        <td>{{ server.address }}</td>
+                                        <td>{{ server.ssl_grade }}</td>
+                                        <td>{{ server.country }}</td>
+                                        <td>{{ server.owner }}</td>
+                                    </tr>
+                                </table>
                             </div>
-                            <h2>Servers</h2>
-                            <table>
-                                <tr>
-                                    <th>address</th>
-                                    <th>ssl_grade</th>
-                                    <th>country</th>
-                                    <th>owner</th>
-                                </tr>
-                                <tr v-for="server in servers">
-                                    <td>{{ server.address }}</td>
-                                    <td>{{ server.ssl_grade }}</td>
-                                    <td>{{ server.country }}</td>
-                                    <td>{{ server.owner }}</td>
-                                </tr>
-                            </table>
+                            <div class="row justify-content-center">
+                                <h5 class="mr-5">SSL Grade: <span class="badge" v-bind:class="this.gradeColor">{{ sslGrade }}</span></h5>
+                                <h5>Previous SSL Grade: <span class="badge" v-bind:class="this.previousColor">{{ previousSslGrade }}</span></h5>
+                            </div>
                         </div>
                     </div>
                 </div>
