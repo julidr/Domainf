@@ -24,22 +24,22 @@
 
 </head>
 
-<body>
+<body class="domainf">
     <div id="app" class="container h-100">
         <div class="row align-items-center h-100">
             <div class="col text-center">
-                <h1>DOMAINF</h1>
-                <p><code class="text-success">DOMAINF</code> is a simple page that get the information of a server and knows
-                    if its configuration has changed</p>
+                <h1><a href="." class="plain-a">DOMAINF</a></h1>
+                <p><code class="text-info">DOMAINF</code> is a simple page that get the information of a server and knows if
+                    its configuration has changed</p>
                 <div class="form-inline justify-content-center">
                     <div class="form-group">
                         <div class="form-group mx-sm-3 mb-2">
-                            <input class="form-control" v-model="host" placeholder="truora.com">
+                            <input class="form-control" v-model="host" placeholder="example.com">
                         </div>
-                        <button class="btn btn-success mb-2" v-on:click="getServers">Search <i class="fas fa-search"></i></button>
+                        <button class="btn btn-info mb-2" v-on:click="getServers">Search <i class="fas fa-search"></i></button>
                     </div>
                 </div>
-                <button class="btn btn-link text-success" v-on:click="getHistory">search history</button>
+                <button class="btn btn-link text-info" v-on:click="getHistory">search history</button>
                 <div v-if="isDown" class="alert alert-warning alert-dismissible fade show" role="alert">
                     <h4 class="alert-heading">Dont't Freakout!</h4>
                     <p>Sometimes the response will have empty fields or the server status will be red, this can happen when
@@ -58,31 +58,37 @@
                     </button>
                 </div>
                 <div v-if="!hideHistory">
-                    <div v-if="loading2" class="spinner-border" role="status">
+                    <div v-if="loading2" class="spinner-border text-info" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                     <div v-else>
-                        <ul class="list-group mt-2" v-for="domain in history">
-                            <li class="list-group-item">{{ domain }}</li>
-                        </ul>
+                        <div class="card mt-2">
+                            <div class="card-header"><h4 class="card-title">History</h4></div>
+                            <div class="card-body">
+                                <p>The following information is a list of all the domain that have been searched in <code class="text-info">DOMAINF</code></p>
+                                <ul class="list-group mt-2" v-for="domain in history">
+                                    <li class="list-group-item list-group-item-info">{{ domain }}</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div v-if="!hideServers">
-                    <div v-if="loading" class="spinner-border" role="status">
+                    <div v-if="loading" class="spinner-border text-info" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                     <div v-else class="card mt-2">
                         <div class="card-header">
                             <h4 class="card-title mt-2"><img v-bind:src="logo" class="img-fluid mb-2 icon-img" /> {{ title }}</h4>
                             <div class="row justify-content-center">
-                                <h6 class="mr-5"><span class="badge" v-bind:class="{'badge-success': this.serversChanged, 'badge-danger': !this.serversChanged}">Server Changed</span></h6>
-                                <h6><span class="badge" v-bind:class="{'badge-success': !this.isDown, 'badge-danger': this.isDown}">Server Status</span></h6>
+                                <h5 class="mr-5"><span class="badge" v-bind:class="{'badge-success': this.serversChanged, 'badge-danger': !this.serversChanged}">Server Changed</span></h5>
+                                <h5><span class="badge" v-bind:class="{'badge-success': !this.isDown, 'badge-danger': this.isDown}">Server Status</span></h5>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row justify-content-center">
                                 <h4>Servers</h4>
-                                <table class="table justify-content-center">
+                                <table class="table justify-content-center table-striped">
                                     <thead>
                                         <tr>
                                             <th>address</th>
@@ -144,7 +150,7 @@
                                 </div>
                             </div>
                             <div class="row justify-content-center mt-5">
-                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#explainModal">
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#explainModal">
                                     Explain me this
                                 </button>
                             </div>
