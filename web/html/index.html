@@ -5,15 +5,17 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
 
-    <!-- CSS styles -->
+    <!-- External CSS styles -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
         crossorigin="anonymous">
+    <!-- Own CSS styles -->
     <link rel="stylesheet" href="../css/domainf.css">
 
 
     <!-- Javascript external libraries -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://kit.fontawesome.com/0dba214369.js" crossorigin="anonymous"></script>
 
     <!-- Javascript own libraries -->
     <script type="module" src="../js/domainf.js"></script>
@@ -26,26 +28,43 @@
     <div id="app" class="container h-100">
         <div class="row align-items-center h-100">
             <div class="col text-center">
-                <h1>Domainf</h1>
-                <p><code>Domainf</code> is a simple page that get the information of a server and knows if its configuration
-                    has changed</p>
+                <h1>DOMAINF</h1>
+                <p><code class="text-success">DOMAINF</code> is a simple page that get the information of a server and knows
+                    if its configuration has changed</p>
                 <div class="form-inline justify-content-center">
                     <div class="form-group">
                         <div class="form-group mx-sm-3 mb-2">
                             <input class="form-control" v-model="host" placeholder="truora.com">
                         </div>
-                        <button class="btn btn-primary mb-2" v-on:click="getServers">Search</button>
+                        <button class="btn btn-success mb-2" v-on:click="getServers">Search <i class="fas fa-search"></i></button>
                     </div>
                 </div>
-                <button class="btn btn-link" v-on:click="getHistory">search history</button>
+                <button class="btn btn-link text-success" v-on:click="getHistory">search history</button>
+                <div v-if="isDown" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Dont't Freakout!</h4>
+                    <p>Sometimes the response will have empty fields or the server status will be red, this can happen when
+                        the information of the specified domain it's been retrieved for the first time and need some time
+                        get it.</p>
+                    <hr>
+                    <p class="mb-0">Please try it again.</p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div v-if="errored" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ weirdError }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
                 <div v-if="!hideHistory">
                     <div v-if="loading2" class="spinner-border" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                     <div v-else>
-                        <div v-for="domain in history">
-                            {{ domain }}
-                        </div>
+                        <ul class="list-group mt-2" v-for="domain in history">
+                            <li class="list-group-item">{{ domain }}</li>
+                        </ul>
                     </div>
                 </div>
                 <div v-if="!hideServers">
@@ -83,6 +102,51 @@
                             <div class="row justify-content-center">
                                 <h5 class="mr-5">SSL Grade: <span class="badge" v-bind:class="this.gradeColor">{{ sslGrade }}</span></h5>
                                 <h5>Previous SSL Grade: <span class="badge" v-bind:class="this.previousColor">{{ previousSslGrade }}</span></h5>
+                            </div>
+                            <!-- Modal -->
+                            <div class="modal fade" id="explainModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="explainModalLabel">Explanation</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                        <div class="modal-body text-left">
+                                            <p>Sure!</p>
+                                            <p><strong><i class="fas fa-angle-right"></i> Server Changed: </strong> Is
+                                                <code class="text-success">green</code> if the information of the servers
+                                                changed otherwise is
+                                                <code class="text-danger">red</code>
+                                            </p>
+                                            <p><strong><i class="fas fa-angle-right"></i> Server Status: </strong> Show with
+                                                <code class="text-success">green</code> if the server retrieve some information
+                                                and is working otherwise is <code class="text-danger">red</code></p>
+                                            <p><strong><i class="fas fa-angle-right"></i> Servers: </strong>They are the servers
+                                                of the input domain. Each server is show in a table with the following information:
+                                            </p>
+                                            <p class="ml-5"><strong><i class="fas fa-angle-double-right"></i> Address: </strong>IP or host
+                                                of the server</p>
+                                            <p class="ml-5"><strong><i class="fas fa-angle-double-right"></i> SSL Grade: </strong>The grade
+                                                SSL grade given by SSLabs </p>
+                                            <p class="ml-5"><strong><i class="fas fa-angle-double-right"></i> Country: </strong>The country
+                                                where the server is</p>
+                                            <p class="ml-5"><strong><i class="fas fa-angle-double-right"></i> Owner: </strong>The owner of
+                                                the server</p>
+                                            <p><strong><i class="fas fa-angle-right"></i> SSL Grade: </strong>The lower grade
+                                                of all the domain servers</p>
+                                            <p><strong><i class="fas fa-angle-right"></i> Previous SSL Grade: </strong>The lower
+                                                grade that the domain had before</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center mt-5">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#explainModal">
+                                    Explain me this
+                                </button>
                             </div>
                         </div>
                     </div>

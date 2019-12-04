@@ -17,7 +17,8 @@ var domainfApp = new Vue({
             gradeColor: null,
             previousColor: null,
             hideHistory: true,
-            history: null
+            history: null,
+            weirdError: null
         }
     },
     methods: {
@@ -48,6 +49,7 @@ var domainfApp = new Vue({
                 })
                 .catch(error => {
                     console.log(error)
+                    this.weirdError = error
                     this.errored = true
                 })
                 .finally(() => this.loading = false)
@@ -63,6 +65,7 @@ var domainfApp = new Vue({
                 })
                 .catch(error => {
                     console.log(error)
+                    this.weirdError = error
                     this.errored = true
                 })
                 .finally(() => this.loading2 = false)
