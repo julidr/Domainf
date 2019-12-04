@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// TODO handle this with secrets
 var connection = repository.GetConnection("root", "Juli", "26257", "domainf", "disable")
 
 // Handle all the logic to retrieve the information of the specified domain.
@@ -21,31 +22,41 @@ var connection = repository.GetConnection("root", "Juli", "26257", "domainf", "d
 func GetServerInformation(host string) []byte {
 	var servers []string
 	result := &models.Information{}
+	// Call the SSL Labs endpoint to get the information of the domain
 	analyze := callAnalyzeEndpoint(host)
 	endpointsCount := len(analyze.Endpoints)
 	result.Servers = make([]models.Server, 0)
+	// Iterate over the returned endpoints to get their country and owner
 	for i := 0; i < endpointsCount; i++ {
 		server := models.Server{}
 		server.SetAddress(analyze.Endpoints[i].IpAddress)
 		server.SetSslGrade(analyze.Endpoints[i].Grade)
+		// Call Whois library to get Owner and Country
 		extraInfo := getOwnerAndCountry(analyze.Endpoints[i].IpAddress)
 		server.SetOwner(extraInfo[0])
 		server.SetCountry(extraInfo[1])
 		servers = append(servers, analyze.Endpoints[i].IpAddress)
 		result.Servers = append(result.Servers, server)
 	}
+	// If the SSL Labs didn't return an array of servers
+	// Then this can be considered like the is down (not really)
 	if len(result.Servers) == 0 {
 		result.SetIsDown(true)
 	}
+	// Calculate which one is the lowest grade in the array of servers
 	lowerGrade := calculateLowerSslGrade(analyze.Endpoints)
 	result.SetSslGrade(lowerGrade)
+	// Get the website of the domain and try to get its logo and title
 	headInformation := getLogoAndTitle(analyze.Host, analyze.Protocol)
 	result.SetLogo(headInformation[0])
 	result.SetTitle(headInformation[1])
+	// Search in the database if a domain related to that host already exist
 	domain := getDomain(host)
+	// Create a new domain in the database in case that didn't exist
 	if domain.Id() == "" {
 		createDomain(host, lowerGrade, servers)
 	} else {
+		// Compare if the returned servers are different from the previous stored servers
 		serversChanged := compareServers(servers, domain.Servers())
 		result.SetServersChanged(serversChanged)
 		if serversChanged == true {
@@ -53,9 +64,11 @@ func GetServerInformation(host string) []byte {
 		}
 		result.SetPreviousSslGrade(domain.SslGrade())
 	}
+	// Update the domain with its new grade and time
 	domain.SetSslGrade(lowerGrade)
 	domain.SetUpdatedAt(time.Now())
 	updateDomain(domain)
+	// Transform the Information Struct to a JSON
 	response, err := json.Marshal(result)
 	if err != nil {
 		log.Fatal("Something failed with the response: ", err)
@@ -184,6 +197,7 @@ func getLogoAndTitle(host string, protocol string) [2]string {
 	defer response.Body.Close()
 	htmlResponse, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(htmlResponse)
+	// Get only the content of the HEAD tag
 	headStartIndex := strings.Index(pageContent, "<head>")
 	headEndIndex := strings.Index(pageContent, "</head>")
 	headContent := pageContent[headStartIndex:headEndIndex]
@@ -198,6 +212,7 @@ func getLogoAndTitle(host string, protocol string) [2]string {
 	return headInformation
 }
 
+// Given an HTML node search for the shortcut icon from its head
 func searchIcon(n *html.Node) string {
 	var logo string
 	if n.Type == html.ElementNode && n.Data == "link" {
@@ -220,6 +235,7 @@ func searchIcon(n *html.Node) string {
 	return logo
 }
 
+// Given an HTML node search for the title of the Head
 func searchTitle (n *html.Node) string {
 	var title string
 	if n.Type == html.ElementNode && n.Data == "title" {

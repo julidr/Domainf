@@ -1,26 +1,37 @@
-# Domainf #
-Simple page that get the information of a server and knows if its configuration has changed.
+# Domainf ![https://golang.org/](https://img.shields.io/badge/Go-1.13.4-informational) ![https://www.cockroachlabs.com/](https://img.shields.io/badge/CockRoachDB-19.2.0-green) ![https://github.com/go-chi/chi](https://img.shields.io/badge/chi-4.0.2-brightgreen) ![coverage](https://img.shields.io/badge/coverage-37.5%25-red)
 
-## Model
+Simple [page](./web/README.md) that get the information of a server and knows if its configuration has changed.
+
+### External Libraries
+```
+github.com/lib/pq
+github.com/go-chi/chi
+github.com/go-chi/chi/middleware
+github.com/go-chi/cors
+github.com/likexian/whois-go
+golang.org/x/net/html
+```
+
+### Model
 Domainf model is a single table called domain that store the necessary information to validate 
 if the domain change or not. 
 
 ![database-model](./web/assets/img/domainf_models.png)
 
-## API ##
-### Servers ###
+## API
+### Servers 
 ```
 GET http://localhost:8546/servers
 ```
-#### Description ####
+#### Description 
 Return the server information of a specific domain
 
-#### Parameters ####
+#### Parameters 
 | Type          | Name          | Description           |
 | ------------- |:-------------:|:---------------------:|
 | Query         | host          | Domain host to search |
 
-#### Responses ####
+#### Responses 
 ```json
 {
   "servers": [
@@ -45,14 +56,14 @@ Return the server information of a specific domain
   "is_down": false
 }
 ```
-### History ###
+### History 
 ```
 GET http://localhost:8546/servers/history
 ```
-#### Description ####
+#### Description 
 Return all domains that were searched
 
-#### Responses ####
+#### Responses 
 
 ```json
 {
